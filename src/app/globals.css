@@ -4,14 +4,7 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --foreground: #111827; /* Dark Gray/Black */
 }
 
 body {
@@ -24,4 +17,32 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+@media print {
+  @page {
+    size: auto;
+    margin: 0mm;
+  }
+  
+  body {
+    background-color: white !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide everything except the ID card */
+  main > div {
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Force background colors and images to print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* If there are multiple cards, you can use page-break-after: always; */
 }

@@ -3,21 +3,28 @@ import { useEffect, useState } from 'react';
 import IDCardComponent, { StudentData } from '../components/idcard';
 import { StudentIDPDF } from '../components/idcard-pdf';
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import { Printer, ChevronLeft, Download } from 'lucide-react';
+import { Printer, ChevronLeft, Download, AlertCircle, X } from 'lucide-react';
 
 export default function DisplayIDCards() { 
   const [students, setStudents] = useState<StudentData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<StudentData | null>(null);
 
   useEffect(() => {
     async function fetchStudents() {
       try {
+        setLoading(true);
         const response = await fetch('/api/students');
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error || 'Failed to connect to database');
+        }
         const data = await response.json();
-        setStudents(data);
-      } catch (error) {
-        console.error('Failed to fetch students:', error);
+        setStudents(Array.isArray(data) ? data : []);
+      } catch (err: any) {
+        console.error('Fetch error:', err);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -49,7 +56,7 @@ export default function DisplayIDCards() {
                     ADMIN PORTAL
                 </a>
                 
-                {!loading && students.length > 0 && (
+                {!loading && !error && students.length > 0 && (
                     <PDFDownloadLink document={<StudentIDPDF students={students} />} fileName="all_student_cards.pdf">
                         {({ loading: pdfLoading }) => (
                             <button className="bg-blue-900 text-white px-8 py-3 rounded-2xl font-black shadow-xl hover:bg-black transition-all flex items-center gap-2">
@@ -61,8 +68,28 @@ export default function DisplayIDCards() {
                 )}
             </div>
         </header>
-        
-        {loading ? (
+
+        {error ? (
+           <div className="bg-red-50 border-2 border-red-100 p-10 rounded-[40px] text-center shadow-inner">
+              <AlertCircle className="mx-auto text-red-500 mb-4" size={48} />
+              <h2 className="text-2xl font-black text-red-900 uppercase tracking-tight">Database Connection Error</h2>
+              <p className="text-red-600 font-bold mt-2 max-w-md mx-auto">{error}</p>
+              <div className="mt-6 flex flex-col gap-4 items-center">
+                  <p className="text-xs text-red-400 uppercase font-black tracking-widest">Steps to fix:</p>
+                  <ul className="text-sm text-red-500 font-medium list-disc text-left inline-block">
+                      <li>Check your Vercel Environment Variables</li>
+                      <li>Verify DATABASE_URL is correct</li>
+                      <li>Run &quot;npx prisma db push&quot; to setup tables</li>
+                  </ul>
+                  <button 
+                    onClick={() => window.location.reload()}
+                    className="mt-4 bg-red-600 text-white px-8 py-2 rounded-full font-black text-xs uppercase tracking-widest hover:bg-red-700 transition-all"
+                  >
+                    Try Reconnecting
+                  </button>
+              </div>
+           </div>
+        ) : loading ? (
           <div className="flex justify-center items-center h-64">
              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-900"></div>
           </div>
@@ -78,7 +105,7 @@ export default function DisplayIDCards() {
           </div>
         )}
 
-        {students.length === 0 && !loading && (
+        {!loading && !error && students.length === 0 && (
           <div className="text-center py-32 bg-white rounded-[40px] shadow-sm border-2 border-dashed border-slate-200">
             <p className="text-slate-300 text-2xl font-black uppercase tracking-widest">No student records to display</p>
             <a href="/" className="inline-block mt-6 text-blue-600 font-black hover:underline underline-offset-8">Go to Admin to add records →</a>
@@ -135,6 +162,3 @@ export default function DisplayIDCards() {
   );
 }
 
-const X = ({ size, className }: { size?: number, className?: string }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-);

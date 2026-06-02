@@ -9,8 +9,11 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const id = parseInt(params.id);
+    if (isNaN(id)) return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
+
     const student = await prisma.student.findUnique({
-      where: { id: parseInt(params.id) },
+      where: { id },
     });
     if (!student) return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     return NextResponse.json(student);
@@ -39,12 +42,17 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const formData = await request.formData();
     const id = parseInt(params.id);
+    if (isNaN(id)) return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
+
+    const formData = await request.formData();
+    
+    // Check if student exists first
+    const existingStudent = await prisma.student.findUnique({ where: { id } });
+    if (!existingStudent) return NextResponse.json({ error: 'Student not found' }, { status: 404 });
 
     const data: UpdateData = {};
     
-    // Explicitly handling each field to avoid 'any'
     const name = formData.get('name') as string | null;
     if (name) data.name = name;
 
@@ -61,7 +69,10 @@ export async function PUT(
     if (fatherName) data.fatherName = fatherName;
 
     const dobValue = formData.get('dob') as string | null;
-    if (dobValue) data.dob = new Date(dobValue);
+    if (dobValue) {
+        const dob = new Date(dobValue);
+        if (!isNaN(dob.getTime())) data.dob = dob;
+    }
 
     const address = formData.get('address') as string | null;
     if (address) data.address = address;
@@ -70,7 +81,10 @@ export async function PUT(
     if (phone) data.phone = phone;
 
     const expiryDateValue = formData.get('expiryDate') as string | null;
-    if (expiryDateValue) data.expiryDate = new Date(expiryDateValue);
+    if (expiryDateValue) {
+        const expiry = new Date(expiryDateValue);
+        if (!isNaN(expiry.getTime())) data.expiryDate = expiry;
+    }
 
     const file = formData.get('photo');
     if (file && file instanceof File && file.size > 0) {
@@ -80,7 +94,10 @@ export async function PUT(
       const uploadDir = join(process.cwd(), 'public/uploads/students');
       await mkdir(uploadDir, { recursive: true });
 
-      const filename = `${data.rollNo || 'updated'}_${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+      const currentRollNo = data.rollNo || existingStudent.rollNo;
+      const sanitizedOriginalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const filename = `${currentRollNo.replace(/[^a-zA-Z0-9]/g, '')}_${Date.now()}_${sanitizedOriginalName}`;
+      
       const path = join(uploadDir, filename);
       await writeFile(path, buffer);
       data.photo = `/uploads/students/${filename}`;
@@ -108,8 +125,11 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const id = parseInt(params.id);
+    if (isNaN(id)) return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
+
     await prisma.student.delete({
-      where: { id: parseInt(params.id) },
+      where: { id },
     });
     return NextResponse.json({ message: 'Student deleted successfully' });
   } catch (error) {

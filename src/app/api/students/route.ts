@@ -45,6 +45,18 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    // Validate DOB
+    const dob = new Date(dobValue);
+    if (isNaN(dob.getTime())) {
+        return NextResponse.json({ error: 'Invalid Date of Birth' }, { status: 400 });
+    }
+
+    // Validate Expiry Date
+    const expiryDate = new Date(expiryValue || '2027-12-31');
+    if (isNaN(expiryDate.getTime())) {
+        return NextResponse.json({ error: 'Invalid Expiry Date' }, { status: 400 });
+    }
+
     let photoPath = null;
 
     if (file && file instanceof File && file.size > 0) {
@@ -54,7 +66,9 @@ export async function POST(request: Request) {
       const uploadDir = join(process.cwd(), 'public/uploads/students');
       await mkdir(uploadDir, { recursive: true });
 
-      const filename = `${rollNo}_${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+      // Sanitize filename: remove special characters and spaces
+      const sanitizedOriginalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const filename = `${rollNo.replace(/[^a-zA-Z0-9]/g, '')}_${Date.now()}_${sanitizedOriginalName}`;
       const path = join(uploadDir, filename);
       
       await writeFile(path, buffer);
@@ -68,10 +82,10 @@ export async function POST(request: Request) {
         className,
         section,
         fatherName,
-        dob: new Date(dobValue),
+        dob,
         address,
         phone,
-        expiryDate: new Date(expiryValue || '2027-12-31'),
+        expiryDate,
         photo: photoPath
       },
     });

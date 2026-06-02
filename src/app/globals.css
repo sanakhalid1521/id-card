@@ -21,8 +21,8 @@ body {
 
 @media print {
   @page {
-    size: auto;
-    margin: 0mm;
+    size: A4;
+    margin: 10mm;
   }
   
   body {
@@ -31,10 +31,39 @@ body {
     print-color-adjust: exact !important;
   }
 
-  /* Hide everything except the ID card */
-  main > div {
-    box-shadow: none !important;
-    border: none !important;
+  /* Hide UI elements during print */
+  header, 
+  .print\:hidden,
+  button,
+  .admin-actions,
+  nav {
+    display: none !important;
+  }
+
+  /* Reset layout for print */
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+  }
+
+  .max-w-7xl {
+    max-width: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Ensure cards are visible and laid out well */
+  .grid {
+    display: block !important;
+  }
+
+  .grid > * {
+    break-inside: avoid;
+    margin-bottom: 20px;
+    display: flex !important;
+    justify-content: center !important;
   }
 
   /* Force background colors and images to print */
@@ -43,6 +72,4 @@ body {
     print-color-adjust: exact !important;
     color-adjust: exact !important;
   }
-
-  /* If there are multiple cards, you can use page-break-after: always; */
 }

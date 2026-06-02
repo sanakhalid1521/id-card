@@ -120,7 +120,7 @@ export const StudentIDPDF = ({ students }: { students: StudentData[] }) => {
 
             <View style={styles.content}>
                <View style={styles.photoBox}>
-                  {student.photo && <Image src={student.photo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                  {student.photo && <Image src={student.photo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Student Photo" />}
                </View>
                <View style={styles.detailsBox}>
                   <Text style={styles.studentName}>{student.name}</Text>

@@ -22,9 +22,9 @@ export default function DisplayIDCards() {
         }
         const data = await response.json();
         setStudents(Array.isArray(data) ? data : []);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Fetch error:', err);
-        setError(err.message);
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
       } finally {
         setLoading(false);
       }

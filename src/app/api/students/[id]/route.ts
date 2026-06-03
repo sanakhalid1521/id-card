@@ -18,8 +18,11 @@ export async function GET(
     if (!student) return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     return NextResponse.json(student);
   } catch (error) {
-    console.error('Fetch error:', error);
-    return NextResponse.json({ error: 'Failed to fetch student' }, { status: 500 });
+    console.error('Database connection or fetch error:', error);
+    return NextResponse.json({ 
+        error: 'Failed to fetch student record. Check database connection.',
+        details: error instanceof Error ? error.message : String(error)
+    }, { status: 500 });
   }
 }
 

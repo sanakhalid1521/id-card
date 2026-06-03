@@ -2,21 +2,8 @@
 import { useState, useEffect } from 'react';
 import { Search, Plus, X, LayoutGrid, Users, Filter, School, Edit3, Trash2 } from 'lucide-react';
 import Image from 'next/image';
-
-export interface StudentData {
-    id: number;
-    name: string;
-    rollNo: string;
-    className: string;
-    section: string;
-    fatherName: string;
-    dob: string | Date;
-    address: string;
-    phone: string;
-    photo?: string | null;
-    issueDate: string | Date;
-    expiryDate: string | Date;
-}
+import Link from 'next/link';
+import { StudentData } from '@/lib/types';
 
 export default function AdminDashboard() {
   const [students, setStudents] = useState<StudentData[]>([]);
@@ -51,9 +38,15 @@ export default function AdminDashboard() {
     try {
       const res = await fetch('/api/students');
       const data = await res.json();
-      setStudents(data);
+      if (Array.isArray(data)) {
+        setStudents(data);
+      } else {
+        console.error('API did not return an array:', data);
+        setStudents([]);
+      }
     } catch (error) {
       console.error('Failed to fetch students:', error);
+      setStudents([]);
     } finally {
       setLoading(false);
     }
@@ -155,10 +148,10 @@ export default function AdminDashboard() {
           </div>
           
           <div className="flex items-center gap-3 w-full md:w-auto">
-            <a href="/view-cards" className="flex-grow md:flex-grow-0 bg-white border-2 border-slate-200 text-slate-700 px-6 py-3 rounded-2xl font-black hover:border-blue-900 hover:text-blue-900 transition-all flex items-center justify-center gap-2 shadow-sm">
+            <Link href="/view-cards" className="flex-grow md:flex-grow-0 bg-white border-2 border-slate-200 text-slate-700 px-6 py-3 rounded-2xl font-black hover:border-blue-900 hover:text-blue-900 transition-all flex items-center justify-center gap-2 shadow-sm">
                 <LayoutGrid size={18} />
                 CARDS VIEW
-            </a>
+            </Link>
             <button 
                 onClick={() => { if(showForm) resetForm(); else setShowForm(true); }}
                 className="flex-grow md:flex-grow-0 bg-blue-900 text-white px-8 py-3 rounded-2xl font-black hover:bg-black transition-all flex items-center justify-center gap-2 shadow-xl"

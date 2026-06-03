@@ -1,17 +1,21 @@
 "use client";
 import { useEffect, useState } from 'react';
-import IDCardComponent, { StudentData } from '../components/idcard';
+import IDCardComponent from '../components/idcard';
+import { StudentData } from '@/lib/types';
 import { StudentIDPDF } from '../components/idcard-pdf';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { Printer, ChevronLeft, Download, AlertCircle, X } from 'lucide-react';
+import Link from 'next/link';
 
 export default function DisplayIDCards() { 
   const [students, setStudents] = useState<StudentData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<StudentData | null>(null);
+  const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
+    setHasMounted(true);
     async function fetchStudents() {
       try {
         setLoading(true);
@@ -51,12 +55,12 @@ export default function DisplayIDCards() {
             </div>
             
             <div className="flex gap-4">
-                <a href="/" className="bg-slate-100 text-slate-600 px-6 py-3 rounded-2xl font-black hover:bg-slate-200 transition-all flex items-center gap-2">
+                <Link href="/" className="bg-slate-100 text-slate-600 px-6 py-3 rounded-2xl font-black hover:bg-slate-200 transition-all flex items-center gap-2">
                     <ChevronLeft size={20} />
                     ADMIN PORTAL
-                </a>
+                </Link>
                 
-                {!loading && !error && students.length > 0 && (
+                {!loading && !error && students.length > 0 && hasMounted && (
                     <PDFDownloadLink document={<StudentIDPDF students={students} />} fileName="all_student_cards.pdf">
                         {({ loading: pdfLoading }) => (
                             <button className="bg-blue-900 text-white px-8 py-3 rounded-2xl font-black shadow-xl hover:bg-black transition-all flex items-center gap-2">
@@ -108,7 +112,7 @@ export default function DisplayIDCards() {
         {!loading && !error && students.length === 0 && (
           <div className="text-center py-32 bg-white rounded-[40px] shadow-sm border-2 border-dashed border-slate-200">
             <p className="text-slate-300 text-2xl font-black uppercase tracking-widest">No student records to display</p>
-            <a href="/" className="inline-block mt-6 text-blue-600 font-black hover:underline underline-offset-8">Go to Admin to add records →</a>
+            <Link href="/" className="inline-block mt-6 text-blue-600 font-black hover:underline underline-offset-8">Go to Admin to add records →</Link>
           </div>
         )}
       </div>

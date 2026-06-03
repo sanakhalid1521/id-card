@@ -4,21 +4,7 @@ import Image from "next/image";
 import logo from '../../../public/images/logo.png';
 import { QRCodeSVG } from 'qrcode.react';
 import { Edit3, Printer, MapPin, Phone, Calendar, User, School } from 'lucide-react';
-
-export interface StudentData {
-    id: number;
-    name: string;
-    rollNo: string;
-    className: string;
-    section: string;
-    fatherName: string;
-    dob: string | Date;
-    address: string;
-    phone: string;
-    photo?: string | null;
-    issueDate: string | Date;
-    expiryDate: string | Date;
-}
+import { StudentData } from '@/lib/types';
 
 interface IDCardProps extends StudentData {
     onClick?: () => void;

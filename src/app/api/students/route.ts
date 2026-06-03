@@ -20,8 +20,11 @@ export async function GET(request: Request) {
 
     return NextResponse.json(students);
   } catch (error) {
-    console.error('Fetch error:', error);
-    return NextResponse.json({ error: 'Failed to fetch students' }, { status: 500 });
+    console.error('Database connection or fetch error:', error);
+    return NextResponse.json({ 
+        error: 'Failed to fetch students. Please ensure your database is connected and migrations are run.',
+        details: error instanceof Error ? error.message : String(error)
+    }, { status: 500 });
   }
 }
 

@@ -65,17 +65,8 @@ export async function POST(request: Request) {
     if (file && file instanceof File && file.size > 0) {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
-
-      const uploadDir = join(process.cwd(), 'public/uploads/students');
-      await mkdir(uploadDir, { recursive: true });
-
-      // Sanitize filename: remove special characters and spaces
-      const sanitizedOriginalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-      const filename = `${rollNo.replace(/[^a-zA-Z0-9]/g, '')}_${Date.now()}_${sanitizedOriginalName}`;
-      const path = join(uploadDir, filename);
-      
-      await writeFile(path, buffer);
-      photoPath = `/uploads/students/${filename}`;
+      const base64Image = buffer.toString('base64');
+      photoPath = `data:${file.type};base64,${base64Image}`;
     }
 
     const student = await prisma.student.create({

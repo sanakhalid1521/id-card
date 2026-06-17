@@ -93,17 +93,8 @@ export async function PUT(
     if (file && file instanceof File && file.size > 0) {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
-      
-      const uploadDir = join(process.cwd(), 'public/uploads/students');
-      await mkdir(uploadDir, { recursive: true });
-
-      const currentRollNo = data.rollNo || existingStudent.rollNo;
-      const sanitizedOriginalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-      const filename = `${currentRollNo.replace(/[^a-zA-Z0-9]/g, '')}_${Date.now()}_${sanitizedOriginalName}`;
-      
-      const path = join(uploadDir, filename);
-      await writeFile(path, buffer);
-      data.photo = `/uploads/students/${filename}`;
+      const base64Image = buffer.toString('base64');
+      data.photo = `data:${file.type};base64,${base64Image}`;
     }
 
     const student = await prisma.student.update({

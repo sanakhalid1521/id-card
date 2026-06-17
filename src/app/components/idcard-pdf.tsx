@@ -120,6 +120,7 @@ export const StudentIDPDF = ({ students }: { students: StudentData[] }) => {
 
             <View style={styles.content}>
                <View style={styles.photoBox}>
+                  {/* eslint-disable-next-line jsx-a11y/alt-text */}
                   {student.photo && <Image src={student.photo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
                </View>
                <View style={styles.detailsBox}>

@@ -29,8 +29,20 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Vercel Deployment Notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 1. Database Setup (Neon/PostgreSQL)
+This project uses Prisma with PostgreSQL. For Vercel deployment:
+- Set `DATABASE_URL` and `DIRECT_URL` in Vercel Environment Variables.
+- Ensure your database schema is up-to-date by running `npx prisma db push` or `npx prisma migrate deploy` in your CI/CD or local machine before deploying.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 2. File Uploads
+**Important:** The current implementation saves student photos to the local `public/uploads` directory. **This will not work on Vercel** as the filesystem is read-only. 
+- For production, consider using **Vercel Blob**, **Cloudinary**, or **Supabase Storage**.
+- To make it work temporarily on Vercel (without photo persistence), you would need to refactor the API to use a cloud provider.
+
+### 3. Environment Variables
+Ensure the following are set:
+- `DATABASE_URL`
+- `DIRECT_URL`
+
